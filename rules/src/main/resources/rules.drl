@@ -5,10 +5,6 @@ when
     $a : Applicant( age < 18, valid == true )
     $c : Counter()
 then
-    System.out.println("Rule matched");
-    System.out.println("Count " + $c.getCount());
-    modify ( $a ) { setValid( false ), setCount( $c.getCount() + 1 ) };
-    System.out.println("Valid " + $a.isValid());
     modify( $c ) { setCount( $c.getCount() + 1 ) };
-    System.out.println("Count " + $c.getCount());
+    modify ( $a ) { setValid( false ), setCount( $c.getCount() ) };
 end

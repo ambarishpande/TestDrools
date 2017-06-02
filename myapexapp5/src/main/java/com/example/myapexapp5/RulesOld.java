@@ -1,5 +1,7 @@
 package com.example.myapexapp5;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import org.kie.api.KieBase;
@@ -10,21 +12,18 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.rule.FactHandle;
 import org.kie.internal.marshalling.MarshallerFactory;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.KryoSerializable;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import com.example.rules.Applicant;
 import com.example.rules.Counter;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator;
 import com.datatorrent.common.util.BaseOperator;
 
 /**
  * Created by pramod on 5/26/17.
  */
-public class RulesNew extends BaseOperator implements KryoSerializable
+public class RulesOld extends BaseOperator implements Operator.CheckpointNotificationListener
 {
   transient KieServices kieServices;
   transient KieContainer kieContainer;
@@ -33,22 +32,22 @@ public class RulesNew extends BaseOperator implements KryoSerializable
   transient KieSession kieSession;
   //@FieldSerializer.Bind(JavaSerializer.class)
   //Counter counter;
+  byte[] saveSession;
 
   @Override
   public void setup(Context.OperatorContext context)
   {
     initKieBase();
-    if (kieSession == null) {
+    if (saveSession == null) {
       //kieSession = kieContainer.newKieSession();
       kieSession = kieBase.newKieSession();
       //kieSession.insert(counter);
-      Counter counter = new Counter();
-      kieSession.insert(counter);
+      kieSession.insert(new Counter());
     } else {
       System.out.println("Reusing existing session");
       //kieSession = kieBase.newKieSession();
       //kieSession.insert(counter);
-      //initKieSession();
+      initKieSession();
     }
 
     //counter = new Counter();
@@ -84,32 +83,40 @@ public class RulesNew extends BaseOperator implements KryoSerializable
 
   public transient final DefaultOutputPort<Applicant> output = new DefaultOutputPort<>();
 
+  private void initKieSession()
+  {
+    Marshaller marshaller = MarshallerFactory.newMarshaller(kieBase);
+    ByteArrayInputStream bais = new ByteArrayInputStream(saveSession);
+    try {
+      kieSession = marshaller.unmarshall(bais);
+    } catch (IOException | ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   @Override
-  public void write(Kryo kryo, Output output)
+  public void beforeCheckpoint(long l)
   {
     try {
-      kryo.writeObject(output, (kieSession != null) ? Boolean.TRUE : Boolean.FALSE);
-      if (kieSession != null) {
-        Marshaller marshaller = MarshallerFactory.newMarshaller(kieBase);
-        marshaller.marshall(output.getOutputStream(), kieSession);
-      }
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      Marshaller marshaller = MarshallerFactory.newMarshaller(kieBase);
+      marshaller.marshall(baos, kieSession);
+      baos.close();
+      saveSession = baos.toByteArray();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   @Override
-  public void read(Kryo kryo, Input input)
+  public void checkpointed(long l)
   {
-    Boolean sessionExists = kryo.readObject(input, Boolean.class);
-    if (sessionExists) {
-      initKieBase();
-      Marshaller marshaller = MarshallerFactory.newMarshaller(kieBase);
-      try {
-        kieSession = marshaller.unmarshall(input.getInputStream());
-      } catch (IOException | ClassNotFoundException e) {
-        throw new RuntimeException(e);
-      }
-    }
+    saveSession = null;
+  }
+
+  @Override
+  public void committed(long l)
+  {
+
   }
 }
