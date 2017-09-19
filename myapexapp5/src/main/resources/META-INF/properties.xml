@@ -13,12 +13,8 @@
   </property>
   -->
   <property>
-    <name>apex.application.MyFirstApplication.operator.randomGenerator.prop.numTuples</name>
-    <value>1000</value>
-  </property>
-  <property>
-    <name>apex.application.MyFirstApplication.operator.console.prop.stringFormat</name>
-    <value>hello world: %s</value>
+    <name>apex.attr.MEMORY_MB</name>
+    <value>2048</value>
   </property>
 </configuration>
 

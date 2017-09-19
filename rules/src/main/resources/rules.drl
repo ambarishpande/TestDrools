@@ -1,5 +1,12 @@
 package com.example.rules
 
+global Output output;
+global org.apache.commons.lang.mutable.MutableInt counter;
+
+declare Measure
+    @role( event )
+end
+
 rule "Is of valid age"
 when
     $a : Applicant( age < 18, valid == true )
@@ -7,4 +14,22 @@ when
 then
     modify( $c ) { setCount( $c.getCount() + 1 ) };
     modify ( $a ) { setValid( false ), setCount( $c.getCount() ) };
+end
+
+rule "Print event"
+when
+    $m : Measure()
+then
+    counter.increment();
+    if (counter.intValue() % 3000 == 0) {
+        System.out.println("Measure " + $m);
+    }
+end
+
+rule "Average in range"
+when
+    $av : Number(doubleValue > 50.0) from accumulate(Measure($value : value) over window:time(10m), average($value))
+then
+    System.out.println("Average " + $av);
+    output.emit("Average value " + $av + " crossed threshold");
 end

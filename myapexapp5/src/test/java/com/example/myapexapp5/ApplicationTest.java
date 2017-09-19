@@ -4,16 +4,13 @@
 package com.example.myapexapp5;
 
 import java.io.IOException;
-
 import javax.validation.ConstraintViolationException;
 
 import org.junit.Assert;
-
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
+import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.LocalMode;
-import com.example.myapexapp5.Application;
 
 /**
  * Test the DAG declaration in local mode.
