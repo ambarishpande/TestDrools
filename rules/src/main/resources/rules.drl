@@ -16,19 +16,9 @@ then
     modify ( $a ) { setValid( false ), setCount( $c.getCount() ) };
 end
 
-rule "Print event"
-when
-    $m : Measure()
-then
-    counter.increment();
-    if (counter.intValue() % 3000 == 0) {
-        System.out.println("Measure " + $m);
-    }
-end
-
 rule "Average in range"
 when
-    $av : Number(doubleValue > 50.0) from accumulate(Measure($value : value) over window:time(10m), average($value))
+    $av : Number(doubleValue > 53.0) from accumulate(Measure($value : value) over window:time(10m), average($value))
 then
     System.out.println("Average " + $av);
     output.emit("Average value " + $av + " crossed threshold");

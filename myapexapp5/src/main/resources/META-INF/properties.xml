@@ -1,20 +1,8 @@
 <?xml version="1.0"?>
 <configuration>
-  <!-- 
   <property>
-    <name>apex.application.{appName}.operator.{opName}.prop.{propName}</name>
-    <value>some-default-value (if value is not specified, it is required from the user or custom config when launching)</value>
-  </property>
-  -->
-  <!-- memory assigned to app master
-  <property>
-    <name>apex.attr.MASTER_MEMORY_MB</name>
-    <value>1024</value>
-  </property>
-  -->
-  <property>
-    <name>apex.attr.MEMORY_MB</name>
-    <value>2048</value>
+    <name>apex.application.DroolsApplication2.operator.rules.attr.MEMORY_MB</name>
+    <value>8192</value>
   </property>
 </configuration>
 

@@ -137,7 +137,7 @@ public class SpillableRules extends BaseOperator implements Operator.CheckpointN
       kieSession.insert(rulesMeasure);
       kieSession.fireAllRules();
       if ((System.currentTimeMillis() - startTime) >= 1000) {
-        logger.info("Processing time {}", System.currentTimeMillis() - startTime);
+        logger.info("Processing time {} for {}", System.currentTimeMillis() - startTime, measure.getValue());
       }
     }
   };
@@ -214,7 +214,7 @@ public class SpillableRules extends BaseOperator implements Operator.CheckpointN
     @Override
     public void objectDeleted(ObjectDeletedEvent event)
     {
-      measures.remove(event.getOldObject());
+      measures.remove(((SpillableMeasure)event.getOldObject()).id);
     }
   }
 
