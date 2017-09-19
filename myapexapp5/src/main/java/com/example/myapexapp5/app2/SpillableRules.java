@@ -11,6 +11,10 @@ import org.kie.api.KieBase;
 import org.kie.api.KieBaseConfiguration;
 import org.kie.api.KieServices;
 import org.kie.api.conf.EventProcessingOption;
+import org.kie.api.event.rule.ObjectDeletedEvent;
+import org.kie.api.event.rule.ObjectInsertedEvent;
+import org.kie.api.event.rule.ObjectUpdatedEvent;
+import org.kie.api.event.rule.RuleRuntimeEventListener;
 import org.kie.api.marshalling.Marshaller;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
@@ -18,6 +22,7 @@ import org.kie.api.runtime.ObjectFilter;
 import org.kie.internal.marshalling.MarshallerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.apex.malhar.lib.state.managed.UnboundedTimeBucketAssigner;
 import org.apache.apex.malhar.lib.state.spillable.SpillableMapImpl;
 import org.apache.apex.malhar.lib.state.spillable.managed.ManagedStateSpillableStateStore;
 import org.apache.apex.malhar.lib.utils.serde.GenericSerde;
@@ -58,10 +63,13 @@ public class SpillableRules extends BaseOperator implements Operator.CheckpointN
     if (measures == null) {
       store = new ManagedStateSpillableStateStore();
       ((FileAccessFSImpl)store.getFileAccess()).setBasePath(storePath);
+      UnboundedTimeBucketAssigner timeBucketAssigner = new UnboundedTimeBucketAssigner();
+      // Time bucket duration 1hr
+      timeBucketAssigner.setBucketSpan(new Duration(60*60*1000L));
+      store.setTimeBucketAssigner(timeBucketAssigner);
       measures = new SpillableMapImpl<>(store, new byte[] {0}, 0L, new LongSerde(), new GenericSerde<Measure>());
     }
     store.setup(context);
-    store.getTimeBucketAssigner().setBucketSpan(new Duration(60*60*1000L));
     measures.setup(context);
     initKieBase();
     //marshaller = MarshallerFactory.newMarshaller(kieContainer.getKieBase());
@@ -70,8 +78,9 @@ public class SpillableRules extends BaseOperator implements Operator.CheckpointN
       kieSession = kieBase.newKieSession();
     } else {
       System.out.println("Reusing existing session");
-      restoreSessionFromSnapshot();
+      kieSession = restoreSessionFromSnapshot();
     }
+    kieSession.addEventListener(new RuleEventListener());
     outputAdapter = new Output() {
 
       @Override
@@ -164,8 +173,9 @@ public class SpillableRules extends BaseOperator implements Operator.CheckpointN
     store.committed(l);
   }
 
-  private void restoreSessionFromSnapshot()
+  private KieSession restoreSessionFromSnapshot()
   {
+    KieSession kieSession;
     ByteArrayInputStream bais = new ByteArrayInputStream(sessionSnapshot);
     try {
       kieSession = marshaller.unmarshall(bais);
@@ -182,6 +192,29 @@ public class SpillableRules extends BaseOperator implements Operator.CheckpointN
     } catch (IOException | ClassNotFoundException e) {
       logger.info("Exception while restoring from session checkpoint " + e.getMessage());
       throw new RuntimeException(e);
+    }
+    return kieSession;
+  }
+
+  private class RuleEventListener implements RuleRuntimeEventListener
+  {
+
+    @Override
+    public void objectInserted(ObjectInsertedEvent event)
+    {
+
+    }
+
+    @Override
+    public void objectUpdated(ObjectUpdatedEvent event)
+    {
+
+    }
+
+    @Override
+    public void objectDeleted(ObjectDeletedEvent event)
+    {
+      measures.remove(event.getOldObject());
     }
   }
 
