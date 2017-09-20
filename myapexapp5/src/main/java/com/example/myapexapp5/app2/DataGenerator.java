@@ -16,7 +16,7 @@ public class DataGenerator extends BaseOperator implements InputOperator
   boolean emitted = false;
   transient Random random;
 
-  int emitCount = 1000;
+  int emitCount = 100;
 
   @Override
   public void setup(Context.OperatorContext context)
@@ -36,7 +36,8 @@ public class DataGenerator extends BaseOperator implements InputOperator
     for (int i = 0; i < emitCount; ++i) {
       Measure measure = new Measure();
       measure.setPayload(new byte[200]);
-      measure.setValue(System.currentTimeMillis() % 100 + 50 * random.nextGaussian());
+      long currentTime = System.currentTimeMillis();
+      measure.setValue(((currentTime % 2) + 1) * random.nextInt((int)(currentTime % 50 + 1)));
       output.emit(measure);
     }
     try {

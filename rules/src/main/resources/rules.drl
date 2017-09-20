@@ -1,7 +1,6 @@
 package com.example.rules
 
 global Output output;
-global org.apache.commons.lang.mutable.MutableInt counter;
 
 declare Measure
     @role( event )
@@ -16,10 +15,21 @@ then
     modify ( $a ) { setValid( false ), setCount( $c.getCount() ) };
 end
 
-rule "Average in range"
+rule "Calculate average"
 when
-    $av : Number(doubleValue > 53.0) from accumulate(Measure($value : value) over window:time(10m), average($value))
+    $c : Counter()
+    accumulate(Measure($value : value) over window:time(10m), $av : average($value))
 then
-    System.out.println("Average " + $av);
+    if ($c.getCount() % 5000 == 0 ) {
+        System.out.println("Average value " + $av);
+    }
+    $c.setCount($c.getCount() + 1);
+end
+
+rule "Check average" extends "Calculate average"
+when
+    Number( 18.5 < doubleValue ) from $av
+then
+    System.out.println("Average value " + $av + " crossed threshold");
     output.emit("Average value " + $av + " crossed threshold");
 end

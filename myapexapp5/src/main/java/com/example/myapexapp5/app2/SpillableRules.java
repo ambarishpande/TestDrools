@@ -27,8 +27,8 @@ import org.apache.apex.malhar.lib.state.spillable.SpillableMapImpl;
 import org.apache.apex.malhar.lib.state.spillable.managed.ManagedStateSpillableStateStore;
 import org.apache.apex.malhar.lib.utils.serde.GenericSerde;
 import org.apache.apex.malhar.lib.utils.serde.LongSerde;
-import org.apache.commons.lang.mutable.MutableInt;
 
+import com.example.rules.Counter;
 import com.example.rules.Output;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
@@ -76,6 +76,7 @@ public class SpillableRules extends BaseOperator implements Operator.CheckpointN
     marshaller = MarshallerFactory.newMarshaller(kieBase);
     if (sessionSnapshot == null) {
       kieSession = kieBase.newKieSession();
+      kieSession.insert(new Counter());
     } else {
       System.out.println("Reusing existing session");
       kieSession = restoreSessionFromSnapshot();
@@ -90,7 +91,7 @@ public class SpillableRules extends BaseOperator implements Operator.CheckpointN
       }
     };
     kieSession.setGlobal("output", outputAdapter);
-    kieSession.setGlobal("counter", new MutableInt());
+    //kieSession.setGlobal("counter", new MutableInt());
   }
 
   private void initKieBase()
@@ -179,7 +180,7 @@ public class SpillableRules extends BaseOperator implements Operator.CheckpointN
     ByteArrayInputStream bais = new ByteArrayInputStream(sessionSnapshot);
     try {
       kieSession = marshaller.unmarshall(bais);
-      for ( Object object : kieSession.getObjects(new ObjectFilter()
+      for (Object object : kieSession.getObjects(new ObjectFilter()
       {
         @Override
         public boolean accept(Object object)
@@ -225,7 +226,7 @@ public class SpillableRules extends BaseOperator implements Operator.CheckpointN
 
     long id;
 
-    public SpillableMeasure()
+    private SpillableMeasure()
     {
     }
 
