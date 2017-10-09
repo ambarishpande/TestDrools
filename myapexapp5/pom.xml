@@ -4,7 +4,7 @@
   
   <groupId>com.example</groupId>
   <version>1.0-SNAPSHOT</version>
-  <artifactId>myapexapp5</artifactId>
+  <artifactId>myapexapp5-nonms</artifactId>
   <packaging>jar</packaging>
 
   <!-- change these to the appropriate values -->
@@ -14,9 +14,9 @@
   <properties>
     <!-- change this if you desire to use a different version of Apex Core -->
     <apex.core.version>3.6.0</apex.core.version>
-    <apex.malhar.version>3.7.0</apex.malhar.version>
+    <apex.malhar.version>3.8.0-SNAPSHOT</apex.malhar.version>
     <apex.apppackage.classpath>lib/*.jar</apex.apppackage.classpath>
-    <drools.version>6.4.0.Final</drools.version>
+    <drools.version>6.1.0.Final</drools.version>
   </properties>
 
   <build>
@@ -300,6 +300,21 @@
       <artifactId>drools-decisiontables</artifactId>
       <version>${drools.version}</version>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.drools/drools-persistence-jpa -->
+    <dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-persistence-jpa</artifactId>
+      <version>${drools.version}</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.jbpm/jbpm-persistence-jpa -->
+    <dependency>
+      <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-persistence-jpa</artifactId>
+      <version>${drools.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
@@ -317,6 +332,42 @@
       <version>${apex.core.version}</version>
       <scope>test</scope>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.codehaus.btm/btm -->
+    <dependency>
+      <groupId>org.codehaus.btm</groupId>
+      <artifactId>btm</artifactId>
+      <version>2.0.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.btm</groupId>
+      <artifactId>btm</artifactId>
+      <version>RELEASE</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/com.h2database/h2 -->
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>1.0.60</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>RELEASE</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+      <version>4.2.6.Final</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.1.4.jre7</version>
+    </dependency>
+
   </dependencies>
 
 </project>

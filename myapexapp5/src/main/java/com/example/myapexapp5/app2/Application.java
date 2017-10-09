@@ -6,6 +6,8 @@ package com.example.myapexapp5.app2;
 import org.apache.hadoop.conf.Configuration;
 
 import com.example.myapexapp5.ConsoleOperator;
+
+import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
@@ -22,7 +24,7 @@ public class Application implements StreamingApplication
     SpillableRules rules = dag.addOperator("rules", SpillableRules.class);
 
     ConsoleOperator cons = dag.addOperator("console", new ConsoleOperator());
-
+    dag.setAttribute(rules, Context.OperatorContext.TIMEOUT_WINDOW_COUNT, 6000);
     dag.addStream("data", dataGenerator.output, rules.input);
     dag.addStream("decisions", rules.output, cons.input);
   }

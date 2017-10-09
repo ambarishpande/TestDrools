@@ -1,35 +1,17 @@
 package com.example.rules
 
-global Output output;
+  global Output output;
 
 declare Measure
     @role( event )
+    @expires(5m)
 end
 
-rule "Is of valid age"
+rule "Greater Value"
 when
-    $a : Applicant( age < 18, valid == true )
-    $c : Counter()
+  $t : Measure()
+    t1 : Measure((value + $t.value ) > 35 , this after[0s,5m] $t)
 then
-    modify( $c ) { setCount( $c.getCount() + 1 ) };
-    modify ( $a ) { setValid( false ), setCount( $c.getCount() ) };
+  output.emit("Greater Value" );
 end
 
-rule "Calculate average"
-when
-    $c : Counter()
-    accumulate(Measure($value : value) over window:time(10m), $av : average($value))
-then
-    if ($c.getCount() % 5000 == 0 ) {
-        System.out.println("Average value " + $av);
-    }
-    $c.setCount($c.getCount() + 1);
-end
-
-rule "Check average" extends "Calculate average"
-when
-    Number( 18.5 < doubleValue ) from $av
-then
-    System.out.println("Average value " + $av + " crossed threshold");
-    output.emit("Average value " + $av + " crossed threshold");
-end

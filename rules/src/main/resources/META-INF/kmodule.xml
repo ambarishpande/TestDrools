@@ -1,2 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<kmodule xmlns="http://www.drools.org/xsd/kmodule"/>
+<!--
+
+    Copyright (c) 2012-2017 DataTorrent,
+    All Rights Reserved.
+
+-->
+<kmodule xmlns="http://jboss.org/kie/6.0.0/kmodule">
+  <kbase name="rules"  eventProcessingMode="stream" default="true">
+    <ksession name="Transaction-rules-session" default="true"/>
+  </kbase>
+</kmodule>

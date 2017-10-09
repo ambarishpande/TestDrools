@@ -11,6 +11,7 @@ public class Measure implements com.example.rules.Measure
     return value;
   }
 
+
   public void setValue(double value)
   {
     this.value = value;

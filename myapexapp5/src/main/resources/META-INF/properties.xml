@@ -2,7 +2,11 @@
 <configuration>
   <property>
     <name>apex.application.DroolsApplication2.operator.rules.attr.MEMORY_MB</name>
-    <value>8192</value>
+    <value>10240</value>
+  </property>
+  <property>
+    <name>apex.application.DroolsApplication2.operator.dataGenerator.prop.emitCount</name>
+    <value>5</value>
   </property>
 </configuration>
 
